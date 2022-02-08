@@ -68,6 +68,7 @@ class Censure:
     ]
 
     max_dist = 0.5
+    max_except_dist = 0.3
 
     def __init__(self, message: str = "", max_dist: int = None):
         self.raw_string = message
@@ -83,13 +84,21 @@ class Censure:
         for word in words:
             found = False
 
-            for censure in self.censure_words:
-                dist = stringdist.rdlevenshtein_norm(word.lower(), censure.lower())
-                if dist <= self.max_dist and word.lower() not in self.exceptions:
-                    # print(str(dist) + ", " + str(self.max_dist) + ", " + censure)
-                    self.censured_string += "*" * len(word) + " "
+            for exception in self.exceptions:
+                dist = stringdist.rdlevenshtein_norm(word.lower(), exception.lower())
+                if dist <= self.max_except_dist:
+                    self.censured_string += word + " "
                     found = True
                     break
+
+            if not found:
+                for censure in self.censure_words:
+                    dist = stringdist.rdlevenshtein_norm(word.lower(), censure.lower())
+                    if dist <= self.max_dist:
+                        # print(str(dist) + ", " + str(self.max_dist) + ", " + censure)
+                        self.censured_string += "*" * len(word) + " "
+                        found = True
+                        break
 
             if not found:
                 self.censured_string += word + " "
