@@ -7,6 +7,7 @@ if __name__ == '__main__':
     c = censurer.Censure()
     c.set_censure_words(c.delete_duplicates(c_words_path))
     c.set_exceptions(c.delete_duplicates(e_words_path))
+
     print("\n" * 100)
 
     while True:
@@ -14,6 +15,14 @@ if __name__ == '__main__':
         text = input("Some text: ")
         if text == ":stop:":
             break
+        if text == ":s:":
+            print("(Saved)")
+            c.save_censures(c_words_path)
+            c.save_exceptions(e_words_path)
+        if text == ":r:":
+            print("(Reloaded)")
+            c.set_censure_words(c.delete_duplicates(c_words_path))
+            c.set_exceptions(c.delete_duplicates(e_words_path))
         c.update(text)
         print("Not Censured: \t" + c.raw_string)
         print("Censured:     \t" + c.censured_string)

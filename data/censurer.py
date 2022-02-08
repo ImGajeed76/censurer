@@ -68,13 +68,36 @@ class Censure:
     ]
 
     max_dist = 0.5
-    max_except_dist = 0.3
+    max_except_dist = 0.25
 
     def __init__(self, message: str = "", max_dist: int = None):
         self.raw_string = message
         if max_dist is not None:
             self.max_dist = max_dist
         self.update()
+
+    def numbers_to_words(self, word):
+        self.max_dist = self.max_dist
+
+        out = ""
+
+        for c in word:
+            if c == "1":
+                out += "i"
+            elif c == "3":
+                out += "e"
+            elif c == "4":
+                out += "a"
+            elif c == "7":
+                out += "l"
+            elif c == "8":
+                out += "b"
+            elif c == "9":
+                out += "g"
+            else:
+                out += c
+
+        return out
 
     def update(self, message: str = ""):
         self.raw_string = message
@@ -94,7 +117,8 @@ class Censure:
             if not found:
                 for censure in self.censure_words:
                     dist = stringdist.rdlevenshtein_norm(word.lower(), censure.lower())
-                    if dist <= self.max_dist:
+                    dist_2 = stringdist.rdlevenshtein_norm(self.numbers_to_words(word.lower()), censure.lower())
+                    if dist <= self.max_dist or dist_2 <= self.max_dist:
                         # print(str(dist) + ", " + str(self.max_dist) + ", " + censure)
                         self.censured_string += "*" * len(word) + " "
                         found = True
@@ -120,12 +144,14 @@ class Censure:
         text = f.read()
         words = text.split(split)
         self.censure_words = words
+        f.close()
 
     def load_exceptions(self, file: str, split: str = "\n"):
         f = open(file, 'r', encoding="utf-8")
         text = f.read()
         words = text.split(split)
         self.exceptions = words
+        f.close()
 
     def save_censures(self, file: str):
         f = open(file, 'w', encoding="utf-8")
@@ -134,12 +160,16 @@ class Censure:
         for word in self.censure_words:
             f.write(word + "\n")
 
+        f.close()
+
     def save_exceptions(self, file: str):
         f = open(file, 'w', encoding="utf-8")
         f.writelines("")
 
         for word in self.exceptions:
             f.write(word + "\n")
+
+        f.close()
 
     def merge_files_and_load(self, file_1: str, file_2: str, split_1: str = "\n", split_2: str = "\n"):
         self.max_dist = self.max_dist
@@ -162,6 +192,9 @@ class Censure:
             if word.lower() not in final_words:
                 final_words.append(word.lower())
 
+        f_1.close()
+        f_2.close()
+
         return final_words
 
     def delete_duplicates(self, file: str, split: str = "\n"):
@@ -176,5 +209,7 @@ class Censure:
         for word in words:
             if word.lower() not in final_words:
                 final_words.append(word.lower())
+
+        f.close()
 
         return final_words
