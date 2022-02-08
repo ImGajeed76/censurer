@@ -1,8 +1,8 @@
-import censurer
+from data import censurer
 
 if __name__ == '__main__':
-    c_words_path = "censure_words.txt"
-    e_words_path = "exceptions.txt"
+    c_words_path = "data/censure_words.txt"
+    e_words_path = "data/exceptions.txt"
 
     c = censurer.Censure()
     c.set_censure_words(c.delete_duplicates(c_words_path))
@@ -16,7 +16,7 @@ if __name__ == '__main__':
             break
         c.update(text)
         print("Not Censured: \t" + c.raw_string)
-        print("Censured: \t\t" + c.censured_string)
+        print("Censured:     \t" + c.censured_string)
         input()
         print("\n"*100)
 
